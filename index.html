@@ -383,15 +383,41 @@
 </body>
 
 <script>
-  var mainLoopId = setInterval(function(){
-        $('video').not('#teaser').each(function(){
-      if ($(this).is(":in-viewport")) {
-          $(this)[0].play();
+  // Smart autoplay script
+  var mainLoopId = setInterval(function () {
+    $('video').not('#teaser').each(function () {
+      const video = $(this)[0];
+      const $video = $(this);
+
+      const manuallyPaused = $video.data('manuallyPaused') || false;
+
+      if ($video.is(":in-viewport")) {
+        if (!video.paused && !manuallyPaused) {
+          video.play();
+        } else if (video.paused && !manuallyPaused) {
+          video.play();
+        }
       } else {
-          $(this)[0].pause();
+        if (!video.paused) {
+          video.pause();
+        }
       }
-      })
-    },200);
+    });
+  }, 200);
+
+  // Mark manual pause
+  $('video').on('pause', function () {
+    // If paused while in viewport, assume manual
+    if ($(this).is(":in-viewport")) {
+      $(this).data('manuallyPaused', true);
+    }
+  });
+
+  // Clear manual pause on manual play
+  $('video').on('play', function () {
+    $(this).data('manuallyPaused', false);
+  });
 </script>
+
 
 </html>
